@@ -1,10 +1,12 @@
 import { Button, StyleSheet } from 'react-native';
 
 import { View } from '../../components/Themed';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import * as Notifications from 'expo-notifications';
 
 export default function TabOneScreen() {
+  const notificationListener = useRef<Notifications.Subscription>();
+  const responseListener = useRef<Notifications.Subscription>();
 
   useEffect(() => {
     Notifications.requestPermissionsAsync({
@@ -17,6 +19,25 @@ export default function TabOneScreen() {
     }).then((status) => {
       console.log('Notification permissions status:', status);
     });
+
+    // Received notifications while the app is in the foreground
+    notificationListener.current = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        console.log('Received notification:', notification);
+      }
+    );
+
+    // Tap on the notification to open the app
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        console.log('Tapped on the notification:', response);
+      }
+    );
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current!);
+      Notifications.removeNotificationSubscription(responseListener.current!);
+    };
   }, [])
 
   const scheduleNotifications = async () => {
