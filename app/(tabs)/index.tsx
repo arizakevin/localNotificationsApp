@@ -22,8 +22,11 @@ export default function TabOneScreen() {
 
     // Received notifications while the app is in the foreground
     notificationListener.current = Notifications.addNotificationReceivedListener(
-      (notification) => {
+      async (notification) => {
         console.log('Received notification:', notification);
+        const count = await Notifications.getBadgeCountAsync();
+        console.log('Badge count:', count);
+        await Notifications.setBadgeCountAsync(count + 1);
       }
     );
 
@@ -31,6 +34,8 @@ export default function TabOneScreen() {
     responseListener.current = Notifications.addNotificationResponseReceivedListener(
       (response) => {
         console.log('Tapped on the notification:', response);
+        Notifications.dismissAllNotificationsAsync();
+        Notifications.setBadgeCountAsync(0);
       }
     );
 
